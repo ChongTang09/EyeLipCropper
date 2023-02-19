@@ -12,6 +12,13 @@
 >>> pip install -r requirements.txt
 ```
 
+### Run one command to process one folder
+
+To extract the mouths from all videos in a folder and save them in a separate folder, you can use the following command:
+```shell
+>>> python main.py --videos_path VIDEOS_FOLDER
+```
+
 ### 1. Extract frames of a given video
 
 ```shell
