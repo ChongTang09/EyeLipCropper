@@ -33,8 +33,8 @@ class Cropper:
         self.eye_height = 48
         self.face_roi_width = 300
         self.face_roi_height = 300
-        self.mouth_width = 96
-        self.mouth_height = 96
+        self.mouth_width = 48
+        self.mouth_height = 48
         self.start_idx = 48
         self.stop_idx = 68
         self.window_margin = 12
