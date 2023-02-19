@@ -135,7 +135,7 @@ class Cropper:
 
 if __name__ == '__main__':
     cropper = Cropper()
-    # process one folder
-    cropper.crop_files()
-    #process only one video
+    ### process one folder
+    # cropper.crop_files()
+    ### process only one video
     cropper.crop_one_video(video_name='./test/video_proc_0.avi')
