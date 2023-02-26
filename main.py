@@ -20,12 +20,12 @@ from cropper.eye_cropper import crop_eye_image
 from cropper.mouth_cropper import crop_mouth_image
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='extract mouth from videos')
-    parser.add_argument('--videos_path', type=str,
-                        default='./test', help='the input videos folder')
-    args = parser.parse_args()
-    return args
+# def parse_args():
+#     parser = argparse.ArgumentParser(description='extract mouth from videos')
+#     parser.add_argument('--videos_path', type=str,
+#                         default='./test', help='the input videos folder')
+#     args = parser.parse_args()
+#     return args
 
 class Cropper:
     def __init__(self) -> None:
@@ -33,19 +33,20 @@ class Cropper:
         self.eye_height = 48
         self.face_roi_width = 300
         self.face_roi_height = 300
-        self.mouth_width = 48
-        self.mouth_height = 48
+        self.mouth_width = 256
+        self.mouth_height = 256
         self.start_idx = 48
         self.stop_idx = 68
         self.window_margin = 12
 
         self.mean_face = 'D:/Glasgow/RVTALL/EyeLipCropper/cropper/20words_mean_face.npy'
 
-        self.args = parse_args()
+        # self.args = parse_args()
 
-    def crop_files(self):
+    def crop_files(self, videos_path):
 
-        video_list = glob(self.args.videos_path+'/*.avi')
+        # video_list = glob(self.args.videos_path+'/*.avi')
+        video_list = glob(videos_path+'/*.avi')
 
         for idx, video_name in enumerate(video_list):
             print('Processing video {}/{}.'.format(idx+1, len(video_list)))
@@ -56,7 +57,7 @@ class Cropper:
 
         tgt_folder = video_name[0:-4]
         imgs_folder = tgt_folder + '/images'
-        landmarks_folder = tgt_folder + '/landmarkers'
+        landmarks_folder = tgt_folder + '/landmarkers_cv'
         boxes_folder = tgt_folder + '/boxes'
         logs_folder = tgt_folder + '/logs'
         left_eyes_folder = tgt_folder + '/left_eyes'
@@ -97,28 +98,28 @@ class Cropper:
             np.save(image_box_path, box)
 
             # crop eyes
-        print('\033[36mCropping eye images ...\033[0m')
-        os.makedirs(left_eyes_folder, exist_ok=True)
-        os.makedirs(right_eyes_folder, exist_ok=True)
-        for box_file in tqdm(sorted(os.listdir(boxes_folder))):
-            box_path = os.path.join(boxes_folder, box_file)
-            landmarks_path = os.path.join(landmarks_folder, box_file)
-            box_file = os.path.splitext(box_file)[0] + '.png'
-            image_path = os.path.join(imgs_folder, box_file)
-            left_eye_img, right_eye_img, _, _ = crop_eye_image(np.load(landmarks_path),
-                                                            np.load(box_path),
-                                                            image_path,
-                                                            eye_width=self.eye_width,
-                                                            eye_height=self.eye_height,
-                                                            face_width=self.face_roi_width,
-                                                            face_height=self.face_roi_height)
-            if left_eye_img is None or right_eye_img is None:
-                print(f'\033[35m[WARNING] Failed to crop eye image in {box_file}, \
-                please lower the argument `--face-roi-width` or `--face-roi-height`\033[0m')
-            else:
-                io.imsave(os.path.join(left_eyes_folder, box_file), left_eye_img)
-                io.imsave(os.path.join(
-                    right_eyes_folder, box_file), right_eye_img)
+        # print('\033[36mCropping eye images ...\033[0m')
+        # os.makedirs(left_eyes_folder, exist_ok=True)
+        # os.makedirs(right_eyes_folder, exist_ok=True)
+        # for box_file in tqdm(sorted(os.listdir(boxes_folder))):
+        #     box_path = os.path.join(boxes_folder, box_file)
+        #     landmarks_path = os.path.join(landmarks_folder, box_file)
+        #     box_file = os.path.splitext(box_file)[0] + '.png'
+        #     image_path = os.path.join(imgs_folder, box_file)
+        #     left_eye_img, right_eye_img, _, _ = crop_eye_image(np.load(landmarks_path),
+        #                                                     np.load(box_path),
+        #                                                     image_path,
+        #                                                     eye_width=self.eye_width,
+        #                                                     eye_height=self.eye_height,
+        #                                                     face_width=self.face_roi_width,
+        #                                                     face_height=self.face_roi_height)
+        #     if left_eye_img is None or right_eye_img is None:
+        #         print(f'\033[35m[WARNING] Failed to crop eye image in {box_file}, \
+        #         please lower the argument `--face-roi-width` or `--face-roi-height`\033[0m')
+        #     else:
+        #         io.imsave(os.path.join(left_eyes_folder, box_file), left_eye_img)
+        #         io.imsave(os.path.join(
+        #             right_eyes_folder, box_file), right_eye_img)
 
         # crop mouth
         print('\033[36mCropping mouth images ...\033[0m')
@@ -134,8 +135,20 @@ class Cropper:
                         window_margin=self.window_margin)
 
 if __name__ == '__main__':
+    root = r'D:\Glasgow\RVTALL\processed_cut_data\kinect_processed'
+    subjects = [str(i) for i in range(1, 21)]
+    sentences = ['sentences'+str(i) for i in range(1, 11)]
+    words = ['word'+str(i) for i in range(1, 16)]
+    vowels = ['vowel'+str(i) for i in range(1, 6)]
+
     cropper = Cropper()
-    ### process one folder
-    # cropper.crop_files()
+    ### process folders one by one
+    for sub in subjects:
+        for sent in sentences:
+            cropper.crop_files(videos_path=root+'/'+sub+'/'+sent+'/videos')
+        for word in words:
+            cropper.crop_files(videos_path=root+'/'+sub+'/'+word+'/videos')
+        for vowel in vowels:
+            cropper.crop_files(videos_path=root+'/'+sub+'/'+vowel+'/videos')
     ### process only one video
-    cropper.crop_one_video(video_name='./test/video_proc_0.avi')
+    # cropper.crop_one_video(video_name='./test/video_proc_0.avi')
